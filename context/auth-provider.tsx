@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect } from "react";
 import useWorkspaceId from "@/hooks/use-workspace-id";
@@ -6,7 +8,7 @@ import { UserType, WorkspaceType } from "@/types/api.type";
 import useGetWorkspaceQuery from "@/hooks/api/use-get-workspace";
 import usePermissions from "@/hooks/use-permissions";
 import { PermissionType } from "@/constant";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 // Define the context shape
 type AuthContextType = {
@@ -54,6 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     }
   }, [router, workspaceError]);
+
+  useEffect(() => {
+    if (!user) router.replace("/login");
+  }, [router, user]);
 
   const permissions = usePermissions(user, workspace);
 

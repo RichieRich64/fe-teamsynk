@@ -1,3 +1,5 @@
+"use client";
+
 import { parseAsBoolean, useQueryState } from "nuqs";
 
 const useCreateProjectDialog = () => {

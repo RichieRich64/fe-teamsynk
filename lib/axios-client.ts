@@ -20,6 +20,7 @@ API.interceptors.response.use(
 
     if (data === "Unauthorized" && status === 401) {
       window.location.href = "/";
+      // window.location.href = "/login";
     }
 
     const customError: CustomError = {
