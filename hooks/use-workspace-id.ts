@@ -1,10 +1,10 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 const useWorkspaceId = () => {
-  const searchParams = useSearchParams();
-  return searchParams.get("workspaceId") as string;
+  const { workspaceId } = useParams();
+  return workspaceId as string;
 };
 
 export default useWorkspaceId;

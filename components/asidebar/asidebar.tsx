@@ -110,7 +110,10 @@ const Asidebar = () => {
                   >
                     <DropdownMenuGroup></DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setIsOpen(true)}>
+                    <DropdownMenuItem
+                      onClick={() => setIsOpen(true)}
+                      className="cursor-pointer"
+                    >
                       <LogOut />
                       Log out
                     </DropdownMenuItem>

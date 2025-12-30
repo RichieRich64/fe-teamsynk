@@ -58,7 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [router, workspaceError]);
 
   useEffect(() => {
-    if (!user) router.replace("/login");
+    if (!isLoading && !isFetching && !user) {
+      router.replace("/login");
+    }
   }, [router, user]);
 
   const permissions = usePermissions(user, workspace);

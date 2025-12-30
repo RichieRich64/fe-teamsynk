@@ -169,7 +169,7 @@ const SignUpScreen = () => {
                       <Button
                         type="submit"
                         disabled={isPending}
-                        className="w-full cursor-pointer"
+                        className="w-full cursor-pointer mt-4"
                       >
                         {isPending && <Loader className="animate-spin" />}
                         Sign up

@@ -1,12 +1,7 @@
-import React from "react";
+import WorkspaceDashboardScreen from "@/screens/workspace/dashboard";
 
-const Dashboard = () => {
-  return (
-    <div>
-      WorkspacePage
-      <p>....</p>
-    </div>
-  );
+const WorkspaceDashboard = () => {
+  return <WorkspaceDashboardScreen />;
 };
 
-export default Dashboard;
+export default WorkspaceDashboard;

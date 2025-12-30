@@ -131,7 +131,7 @@ export function NavProjects() {
                 <Button
                   variant="link"
                   type="button"
-                  className="h-0 p-0 text-[13px] underline font-semibold mt-4"
+                  className="h-0 p-0 text-[13px] underline font-semibold mt-4 cursor-pointer"
                   onClick={onOpen}
                 >
                   Create a project
