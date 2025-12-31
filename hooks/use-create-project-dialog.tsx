@@ -9,6 +9,7 @@ const useCreateProjectDialog = () => {
   );
   const onOpen = () => setOpen(true);
   const onClose = () => setOpen(false);
+
   return {
     open,
     onOpen,

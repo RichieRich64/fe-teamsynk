@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,44 +12,43 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "../../ui/textarea";
-import EmojiPickerComponent from "@/components/emoji-picker";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
-import useWorkspaceId from "@/hooks/use-workspace-id";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "../../ui/textarea";
+import EmojiPickerComponent from "@/components/emoji-picker";
+import { ProjectType } from "@/types/api.type";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProjectMutationFn } from "@/lib/api";
+import useWorkspaceId from "@/hooks/use-workspace-id";
+import { editProjectMutationFn } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-export default function CreateProjectForm({
-  onClose,
-}: {
+export default function EditProjectForm(props: {
+  project?: ProjectType;
   onClose: () => void;
 }) {
-  const router = useRouter();
-
-  const queryClient = useQueryClient();
+  const { project, onClose } = props;
   const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
 
-  const [emoji, setEmoji] = useState("📊");
+  const [emoji, setEmoji] = useState<string>(project?.emoji ?? "📊");
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: createProjectMutationFn,
-  });
+  const projectId = project?._id as string;
 
   const formSchema = z.object({
     name: z.string().trim().min(1, {
       message: "Project title is required",
     }),
     description: z.string().trim(),
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: editProjectMutationFn,
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,6 +59,13 @@ export default function CreateProjectForm({
     },
   });
 
+  useEffect(() => {
+    if (project) {
+      form.setValue("name", project.name);
+      form.setValue("description", project.description);
+    }
+  }, [form, project]);
+
   const handleEmojiSelection = (emoji: string) => {
     setEmoji(emoji);
   };
@@ -67,23 +74,23 @@ export default function CreateProjectForm({
     if (isPending) return;
 
     const payload = {
+      projectId,
       workspaceId,
-      data: {
-        emoji,
-        ...values,
-      },
+      data: { emoji, ...values },
     };
     mutate(payload, {
       onSuccess: (data) => {
-        const project = data.project;
+        queryClient.invalidateQueries({
+          queryKey: ["singleProject", projectId],
+        });
+
         queryClient.invalidateQueries({
           queryKey: ["allprojects", workspaceId],
         });
 
-        toast.success("Project created successfully");
+        toast.success(data.message);
 
-        router.push(`/workspace/${workspaceId}/project/${project._id}`);
-        setTimeout(() => onClose(), 500);
+        setTimeout(() => onClose(), 100);
       },
       onError: (error) => {
         toast.error(error.message);
@@ -99,10 +106,10 @@ export default function CreateProjectForm({
             className="text-xl tracking-[-0.16px] dark:text-[#fcfdffef] font-semibold mb-1
            text-center sm:text-left"
           >
-            Create Project
+            Edit Project
           </h1>
           <p className="text-muted-foreground text-sm leading-tight">
-            Organize and manage tasks, resources, and team collaboration
+            Update the project details to refine task management
           </p>
         </div>
         <Form {...form}>
@@ -135,11 +142,7 @@ export default function CreateProjectForm({
                       Project title
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Website Redesign"
-                        className="h-12!"
-                        {...field}
-                      />
+                      <Input placeholder="" className="h-12!" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -177,7 +180,7 @@ export default function CreateProjectForm({
               type="submit"
             >
               {isPending && <Loader className="animate-spin" />}
-              Create
+              Update
             </Button>
           </form>
         </Form>

@@ -13,40 +13,30 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "../../ui/textarea";
-import EmojiPickerComponent from "@/components/emoji-picker";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useState } from "react";
-import useWorkspaceId from "@/hooks/use-workspace-id";
+import { Textarea } from "../ui/textarea";
+import { useAuthContext } from "@/context/auth-provider";
+import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProjectMutationFn } from "@/lib/api";
+import { editWorkspaceMutationFn } from "@/lib/api";
+import useWorkspaceId from "@/hooks/use-workspace-id";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Permissions } from "@/constant";
 
-export default function CreateProjectForm({
-  onClose,
-}: {
-  onClose: () => void;
-}) {
-  const router = useRouter();
+export default function EditWorkspaceForm() {
+  const { workspace, hasPermission } = useAuthContext();
+  const canEditWorkspace = hasPermission(Permissions.EDIT_WORKSPACE);
 
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
-  const [emoji, setEmoji] = useState("📊");
-
   const { mutate, isPending } = useMutation({
-    mutationFn: createProjectMutationFn,
+    mutationFn: editWorkspaceMutationFn,
   });
 
   const formSchema = z.object({
     name: z.string().trim().min(1, {
-      message: "Project title is required",
+      message: "Workspace name is required",
     }),
     description: z.string().trim(),
   });
@@ -59,31 +49,28 @@ export default function CreateProjectForm({
     },
   });
 
-  const handleEmojiSelection = (emoji: string) => {
-    setEmoji(emoji);
-  };
+  useEffect(() => {
+    if (workspace) {
+      form.setValue("name", workspace.name);
+      form.setValue("description", workspace?.description || "");
+    }
+  }, [form, workspace]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
 
     const payload = {
-      workspaceId,
-      data: {
-        emoji,
-        ...values,
-      },
+      workspaceId: workspaceId,
+      data: { ...values },
     };
     mutate(payload, {
-      onSuccess: (data) => {
-        const project = data.project;
+      onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["allprojects", workspaceId],
+          queryKey: ["workspace"],
         });
-
-        toast.success("Project created successfully");
-
-        router.push(`/workspace/${workspaceId}/project/${project._id}`);
-        setTimeout(() => onClose(), 500);
+        queryClient.invalidateQueries({
+          queryKey: ["userWorkspaces"],
+        });
       },
       onError: (error) => {
         toast.error(error.message);
@@ -94,37 +81,16 @@ export default function CreateProjectForm({
   return (
     <div className="w-full h-auto max-w-full">
       <div className="h-full">
-        <div className="mb-5 pb-2 border-b">
+        <div className="mb-5 border-b">
           <h1
-            className="text-xl tracking-[-0.16px] dark:text-[#fcfdffef] font-semibold mb-1
+            className="text-[17px] tracking-[-0.16px] dark:text-[#fcfdffef] font-semibold mb-1.5
            text-center sm:text-left"
           >
-            Create Project
+            Edit Workspace
           </h1>
-          <p className="text-muted-foreground text-sm leading-tight">
-            Organize and manage tasks, resources, and team collaboration
-          </p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Select Emoji
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="font-normal size-15 p-2! shadow-none! mt-2 items-center rounded-full "
-                  >
-                    <span className="text-4xl">{emoji}</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" className=" p-0!">
-                  <EmojiPickerComponent onSelectEmoji={handleEmojiSelection} />
-                </PopoverContent>
-              </Popover>
-            </div>
             <div className="mb-4">
               <FormField
                 control={form.control}
@@ -132,12 +98,13 @@ export default function CreateProjectForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="dark:text-[#f1f7feb5] text-sm">
-                      Project title
+                      Workspace name
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Website Redesign"
-                        className="h-12!"
+                        placeholder="Taco's Co."
+                        className="h-12! disabled:opacity-90 disabled:pointer-events-none"
+                        disabled={!canEditWorkspace}
                         {...field}
                       />
                     </FormControl>
@@ -153,15 +120,17 @@ export default function CreateProjectForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="dark:text-[#f1f7feb5] text-sm">
-                      Project description
+                      Workspace description
                       <span className="text-xs font-extralight ml-2">
                         Optional
                       </span>
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={4}
-                        placeholder="Projects description"
+                        rows={6}
+                        disabled={!canEditWorkspace}
+                        className="disabled:opacity-90 disabled:pointer-events-none"
+                        placeholder="Our team organizes marketing projects and tasks here."
                         {...field}
                       />
                     </FormControl>
@@ -170,15 +139,16 @@ export default function CreateProjectForm({
                 )}
               />
             </div>
-
-            <Button
-              disabled={isPending}
-              className="flex place-self-end  h-10 text-white font-semibold cursor-pointer"
-              type="submit"
-            >
-              {isPending && <Loader className="animate-spin" />}
-              Create
-            </Button>
+            {canEditWorkspace && (
+              <Button
+                className="flex place-self-end h-10 text-white font-semibold cursor-pointer"
+                disabled={isPending}
+                type="submit"
+              >
+                {isPending && <Loader className="animate-spin" />}
+                Update Workspace
+              </Button>
+            )}
           </form>
         </Form>
       </div>

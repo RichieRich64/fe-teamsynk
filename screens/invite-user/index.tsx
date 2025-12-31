@@ -1,3 +1,5 @@
+"use client";
+
 import { Loader } from "lucide-react";
 import {
   Card,
@@ -40,6 +42,7 @@ const InviteUserScreen = () => {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
     mutate(inviteCode, {
       onSuccess: (data) => {
         queryClient.resetQueries({
@@ -85,7 +88,7 @@ const InviteUserScreen = () => {
                         <Button
                           type="submit"
                           disabled={isLoading}
-                          className="bg-green-500! text-white! text-[23px] h-auto!"
+                          className="bg-green-500! text-white! text-[23px] h-auto! cursor-pointer"
                         >
                           {isLoading && (
                             <Loader className="w-6! h-6! animate-spin" />

@@ -9,10 +9,10 @@ import { DashboardSkeleton } from "@/components/skeleton-loaders/dashboard-skele
 import useAuth from "@/hooks/api/use-auth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import RecentProjects from "@/components/workspace/project/recent-projects";
-// import RecentTasks from "@/components/workspace/task/recent-tasks";
-// import RecentMembers from "@/components/workspace/member/recent-members";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RecentProjects from "@/components/workspace/project/recent-projects";
+import RecentTasks from "@/components/workspace/task/recent-tasks";
+import RecentMembers from "@/components/workspace/member/recent-members";
 
 const WorkspaceDashboardScreen = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const WorkspaceDashboardScreen = () => {
     if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [router, user]);
+  }, [isLoading, router, user]);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -48,7 +48,7 @@ const WorkspaceDashboardScreen = () => {
         </Button>
       </div>
       <WorkspaceAnalytics />
-      {/* <div className="mt-4">
+      <div className="mt-4">
         <Tabs defaultValue="projects" className="w-full border rounded-lg p-2">
           <TabsList className="w-full justify-start border-0 bg-gray-50 px-1 h-12">
             <TabsTrigger className="py-2" value="projects">
@@ -71,7 +71,7 @@ const WorkspaceDashboardScreen = () => {
             <RecentMembers />
           </TabsContent>
         </Tabs>
-      </div> */}
+      </div>
     </main>
   );
 };

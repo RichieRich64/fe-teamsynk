@@ -37,6 +37,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     if (isLoading) return;
     onClose();
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
