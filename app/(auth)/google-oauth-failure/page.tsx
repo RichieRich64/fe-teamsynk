@@ -1,3 +1,5 @@
+"use client";
+
 import Logo from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
