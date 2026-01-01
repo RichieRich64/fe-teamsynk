@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/common/logo";
 // import GoogleOauthButton from "@/components/auth/google-oauth-button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginMutationFn } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
@@ -31,12 +31,17 @@ import Link from "next/link";
 
 const LoginScreen = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl");
 
   const { mutate, isPending } = useMutation({
     mutationFn: loginMutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      queryClient.refetchQueries({ queryKey: ["authUser"] });
+    },
   });
 
   const formSchema = z.object({
@@ -62,7 +67,6 @@ const LoginScreen = () => {
     mutate(values, {
       onSuccess: (data) => {
         const user = data.user;
-        console.log(user);
         const decodedUrl = returnUrl ? decodeURIComponent(returnUrl) : null;
         router.push(decodedUrl || `/workspace/${user.currentWorkspace}`);
       },
@@ -82,6 +86,9 @@ const LoginScreen = () => {
           <Logo />
           Team Synk.
         </Link>
+        <p className="text-center text-sm text-muted-foreground">
+          Your go-to solution for seamless team collaboration.
+        </p>
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">

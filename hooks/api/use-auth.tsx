@@ -6,7 +6,17 @@ const useAuth = () => {
     queryKey: ["authUser"],
     queryFn: getCurrentUserQueryFn,
     staleTime: 0,
-    retry: 2,
+    gcTime: 0,
+    // retry: 2,
+    retry: (failureCount, error) => {
+      // Don't retry on 401 error (unauthorized)
+      if (error.message === "Unauthorized") {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
   return query;
 };

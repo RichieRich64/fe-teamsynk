@@ -79,6 +79,9 @@ const SignUpScreen = () => {
           <Logo />
           Team Synk.
         </Link>
+        <p className="text-center text-sm text-muted-foreground">
+          Your go-to solution for seamless team collaboration.
+        </p>
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">

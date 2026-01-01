@@ -1,14 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
+import LoginScreen from "../auth/login";
 import useAuth from "@/hooks/api/use-auth";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
 
-interface Props {
-  children?: ReactNode;
-}
-
-const AuthLayoutInner = ({ children }: Props) => {
+const HomeScreen = () => {
   const router = useRouter();
 
   const { data: authData, isLoading, isError } = useAuth();
@@ -24,16 +21,15 @@ const AuthLayoutInner = ({ children }: Props) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        <p className="text-sm text-gray-600 ml-2">Checking authentication...</p>
       </div>
     );
   }
 
   if (!user || isError) {
-    return <div>{children}</div>;
+    return <LoginScreen />;
   }
 
   return null;
 };
 
-export default AuthLayoutInner;
+export default HomeScreen;

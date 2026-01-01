@@ -16,10 +16,14 @@ import RecentMembers from "@/components/workspace/member/recent-members";
 
 const WorkspaceDashboardScreen = () => {
   const router = useRouter();
-  const { data: authData, isLoading } = useAuth();
+  const { data: authData, isLoading, refetch } = useAuth();
   const user = authData?.user;
 
   const { onOpen } = useCreateProjectDialog();
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
     if (!isLoading && !user) {
